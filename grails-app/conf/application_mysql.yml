@@ -1,13 +1,13 @@
 ---
 server:
-  contextPath: '/project'
-  port: 7575
+  contextPath: '/thikthak'
+  port: 7070
   session:
     timeout: 3600  #seconds
 grails:
     profile: web
     codegen:
-        defaultPackage: grailssimplerestapi
+        defaultPackage: wtsapi
     spring:
         transactionManagement:
             proxies: false
@@ -100,21 +100,21 @@ dataSource:
     pooled: true
     jmxExport: true
     driverClassName: com.mysql.cj.jdbc.Driver
-    username: 'erp_dev_db_user'
-    password: 'erp_dev_db_user#123'
+    username: 'werp'
+    password: 'werp#'
 
 environments:
     development:
         dataSource:
             dbCreate: update #create-drop, update
-            url: jdbc:mysql://localhost/erp_dev?serverTimezone=BST
+            url: jdbc:mysql://localhost/wtsapp?serverTimezone=BST
     test:
         dataSource:
             dbCreate: update
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
     production:
         dataSource:
-            dbCreate: none
+            dbCreate: update #create-drop, update
             url: jdbc:h2:./prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
             properties:
                 jmxEnabled: true
@@ -124,9 +124,10 @@ environments:
                 maxIdle: 25
                 maxWait: 10000
                 maxAge: 600000
-                timeBetweenEvictionRunsMillis: 5000
-                minEvictableIdleTimeMillis: 60000
-                validationQuery: SELECT 1
+                timeBetweenEvictionRunsMillis: 1800000
+                minEvictableIdleTimeMillis: 1800000
+#                validationQuery: SELECT 1
+                validationQuery: SELECT 1 FROM DUAL
                 validationQueryTimeout: 3
                 validationInterval: 15000
                 testOnBorrow: true
@@ -134,3 +135,17 @@ environments:
                 testOnReturn: false
                 jdbcInterceptors: ConnectionState
                 defaultTransactionIsolation: 2 # TRANSACTION_READ_COMMITTED
+
+plugin:
+        springsecurity:
+            controllerAnnotations:
+                chainMap:
+                    '/api/**': 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter'
+                    '/**': 'JOINED_FILTERS,-restTokenValidationFilter,-restExceptionTranslationFilter'
+            rest:
+                logout:
+                    endpointUrl: '/api/logout'
+                token:
+                    validation:
+                        useBearerToken: false
+                        headerName: 'X-Auth-Token'
